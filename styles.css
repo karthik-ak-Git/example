@@ -95,10 +95,19 @@ footer {
     margin: 20px 0;
     min-height: 250px;
     background-color: #f9f9f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
+    /* Changed from flex to block */
     border: 1px solid #ddd;
+    overflow: hidden;
+    /* Ensure content doesn't overflow */
+}
+
+/* Make sure the adsbygoogle element has width */
+.ad-container ins.adsbygoogle {
+    display: block;
+    width: 100%;
+    height: 250px;
+    /* Minimum height */
 }
 
 /* Hide ads if cookies are declined */

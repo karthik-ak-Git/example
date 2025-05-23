@@ -15,10 +15,7 @@ document.addEventListener('adsEnabled', function () {
 function loadAdsenseScript() {
     // Only load if not already loaded
     if (!document.getElementById('adsense-script')) {
-        // This is where you'll paste the exact AdSense code provided by Google
-        // The code below is just a placeholder - replace it with your actual AdSense code
-
-        // Example of what Google might provide:
+        // Create and append the AdSense script
         const adScript = document.createElement('script');
         adScript.id = 'adsense-script';
         adScript.async = true;
@@ -26,11 +23,28 @@ function loadAdsenseScript() {
         adScript.crossOrigin = 'anonymous';
         document.head.appendChild(adScript);
 
-        // Show the ads that were hidden
-        showAds();
+        // Wait for the script to load before showing ads
+        adScript.onload = function () {
+            // Show the ads that were hidden
+            showAds();
+
+            // Initialize any existing ad units
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error('AdSense initialization error:', e);
+            }
+        };
     } else {
         // If script is already loaded, just show the ads
         showAds();
+
+        // Re-initialize ads
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error('AdSense initialization error:', e);
+        }
     }
 }
 
@@ -38,7 +52,30 @@ function loadAdsenseScript() {
 function showAds() {
     const adContainers = document.querySelectorAll('.ad-container');
     adContainers.forEach(container => {
+        // Make sure container is visible
         container.style.display = 'block';
+
+        // Ensure the ad has width
+        const adElement = container.querySelector('ins.adsbygoogle');
+        if (adElement) {
+            // Set explicit dimensions if not already set
+            if (!adElement.style.width) {
+                adElement.style.width = '100%';
+            }
+            if (!adElement.style.height) {
+                adElement.style.height = '250px';
+            }
+
+            // Force a layout recalculation
+            setTimeout(() => {
+                // Try to push the ad again after a short delay
+                try {
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {
+                    console.log('Additional ad push attempt:', e);
+                }
+            }, 200);
+        }
     });
 }
 
