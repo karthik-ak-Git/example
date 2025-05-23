@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website with Ads and Cookie Consent</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Google AdSense script will be loaded conditionally via JavaScript -->
+    <!-- The script tag below is just a placeholder. It will be replaced by the actual code from Google -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script> -->
+</head>
+
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" class="cookie-banner">
+        <div class="cookie-content">
+            <p>This website uses cookies to ensure you get the best experience on our website. By continuing to use this
+                site, you consent to the use of cookies.</p>
+            <div class="cookie-buttons">
+                <button id="accept-cookies">Accept</button>
+                <button id="decline-cookies">Decline</button>
+                <a href="privacy-policy.html">Learn More</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <header>
+        <h1>Welcome to My Website</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Main Content</h2>
+            <p>This is the main content of your website. You can add more sections as needed.</p>
+        </section>
+
+        <!-- AdSense Ad Container -->
+        <div class="ad-container">
+            <!-- Replace this comment with the actual AdSense code provided by Google -->
+            <!-- Example: -->
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+                crossorigin="anonymous"></script>
+            <!-- Display Ad -->
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <section>
+            <h2>Another Section</h2>
+            <p>More content for your website goes here.</p>
+        </section>
+
+        <!-- Another AdSense Ad Container -->
+        <div class="ad-container">
+            <!-- Replace this comment with the actual AdSense code provided by Google -->
+            <!-- Example: -->
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+                crossorigin="anonymous"></script>
+            <!-- Display Ad -->
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Your Website. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="cookies.js"></script>
+    <script src="ads.js"></script>
+</body>
+
+</html>
