@@ -22,9 +22,31 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {
             // Handle legacy cookie format
             if (getCookie('cookie_consent') === 'accepted') {
+                // Migrate old format to new format
+                const newConsentData = {
+                    essential: true,
+                    analytics: true,
+                    advertising: true
+                };
+                setCookie('cookie_consent', JSON.stringify(newConsentData), 365);
+                console.log('Migrated cookie consent to new format during page load');
+
                 enableAds();
-            } else {
+            } else if (getCookie('cookie_consent') === 'declined') {
+                // Migrate old declined format to new format
+                const newConsentData = {
+                    essential: true,
+                    analytics: false,
+                    advertising: false
+                };
+                setCookie('cookie_consent', JSON.stringify(newConsentData), 365);
+                console.log('Migrated declined cookie consent to new format');
+
                 document.body.classList.add('ads-disabled');
+            } else {
+                // Unknown format
+                document.body.classList.add('ads-disabled');
+                console.warn('Unknown cookie consent format');
             }
         }
     }
@@ -131,12 +153,34 @@ function enableAds() {
 
     // If user has consented to advertising cookies, collect first-party data
     try {
-        const consentData = JSON.parse(getCookie('cookie_consent'));
-        if (consentData && consentData.advertising) {
+        const cookieValue = getCookie('cookie_consent');
+
+        // Handle both old and new cookie formats
+        if (cookieValue === 'accepted') {
+            // Old format - simple string
             collectFirstPartyData();
+
+            // Optionally migrate to new format
+            const newConsentData = {
+                essential: true,
+                analytics: true,
+                advertising: true
+            };
+            setCookie('cookie_consent', JSON.stringify(newConsentData), 365);
+            console.log('Migrated cookie consent to new format');
+        } else {
+            // New format - JSON object
+            try {
+                const consentData = JSON.parse(cookieValue);
+                if (consentData && consentData.advertising) {
+                    collectFirstPartyData();
+                }
+            } catch (jsonError) {
+                console.log('Cookie value is neither old format nor valid JSON');
+            }
         }
     } catch (e) {
-        console.error('Error parsing consent data:', e);
+        console.error('Error handling consent data:', e);
     }
 }
 
