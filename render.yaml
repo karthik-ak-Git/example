@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: node-web-app
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: src
+    envVars:
+      - key: NODE_ENV
+        value: production
