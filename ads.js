@@ -1,10 +1,10 @@
 // Google AdSense Integration
-document.addEventListener('DOMContentLoaded', function () {
+window.onload = function () {
     // Check if cookies are accepted before loading ads
     if (getCookie('cookie_consent') === 'accepted') {
         loadAdsenseScript();
     }
-});
+};
 
 // Listen for the custom event when ads are enabled
 document.addEventListener('adsEnabled', function () {
@@ -19,7 +19,7 @@ function loadAdsenseScript() {
         const adScript = document.createElement('script');
         adScript.id = 'adsense-script';
         adScript.async = true;
-        adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX';
+        adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456';
         adScript.crossOrigin = 'anonymous';
         document.head.appendChild(adScript);
 
