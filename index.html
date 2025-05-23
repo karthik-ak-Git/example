@@ -16,12 +16,35 @@
     <!-- Cookie Consent Banner -->
     <div id="cookie-consent-banner" class="cookie-banner">
         <div class="cookie-content">
-            <p>This website uses cookies to ensure you get the best experience on our website. By continuing to use this
-                site, you consent to the use of cookies.</p>
+            <h3>Cookie Settings</h3>
+            <p>This website uses cookies to enhance your browsing experience and provide personalized ads.
+                Some cookies are set by third parties like Google AdSense for ad personalization.</p>
+
+            <div class="cookie-options">
+                <div class="cookie-option">
+                    <input type="checkbox" id="essential-cookies" checked disabled>
+                    <label for="essential-cookies">Essential Cookies</label>
+                    <p class="cookie-description">Required for the website to function properly.</p>
+                </div>
+
+                <div class="cookie-option">
+                    <input type="checkbox" id="analytics-cookies" checked>
+                    <label for="analytics-cookies">Analytics Cookies</label>
+                    <p class="cookie-description">Help us understand how visitors interact with our website.</p>
+                </div>
+
+                <div class="cookie-option">
+                    <input type="checkbox" id="advertising-cookies" checked>
+                    <label for="advertising-cookies">Advertising Cookies</label>
+                    <p class="cookie-description">Used to show personalized ads from Google and other providers.</p>
+                </div>
+            </div>
+
             <div class="cookie-buttons">
-                <button id="accept-cookies">Accept</button>
-                <button id="decline-cookies">Decline</button>
-                <a href="privacy-policy.html">Learn More</a>
+                <button id="accept-cookies">Accept All</button>
+                <button id="accept-selected-cookies">Accept Selected</button>
+                <button id="decline-cookies">Decline All</button>
+                <a href="privacy-policy.html">Privacy Policy</a>
             </div>
         </div>
     </div>
