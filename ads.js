@@ -13,38 +13,23 @@ document.addEventListener('adsEnabled', function () {
 
 // Function to load the Google AdSense script
 function loadAdsenseScript() {
-    // Only load if not already loaded
-    if (!document.getElementById('adsense-script')) {
-        // Create and append the AdSense script
-        const adScript = document.createElement('script');
-        adScript.id = 'adsense-script';
-        adScript.async = true;
-        adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456';
-        adScript.crossOrigin = 'anonymous';
-        document.head.appendChild(adScript);
+    // The AdSense script is now loaded in the HTML head
+    // Just show the ads that were hidden
+    showAds();
 
-        // Wait for the script to load before showing ads
-        adScript.onload = function () {
-            // Show the ads that were hidden
-            showAds();
-
-            // Initialize any existing ad units
-            try {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {
-                console.error('AdSense initialization error:', e);
-            }
-        };
-    } else {
-        // If script is already loaded, just show the ads
-        showAds();
-
-        // Re-initialize ads
-        try {
+    // Make sure ads are initialized
+    try {
+        if (window.adsbygoogle && window.adsbygoogle.loaded) {
+            // AdSense is already loaded, just push the ads
             (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error('AdSense initialization error:', e);
+        } else {
+            // Wait a bit for AdSense to load
+            setTimeout(function () {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            }, 500);
         }
+    } catch (e) {
+        console.error('AdSense initialization error:', e);
     }
 }
 
