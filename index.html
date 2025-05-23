@@ -7,9 +7,40 @@
     <title>Website with Ads and Cookie Consent</title>
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Google AdSense script -->
+    <!-- Google AdSense script with Privacy Sandbox support -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139286601549044"
         crossorigin="anonymous"></script>
+
+    <!-- Enable Privacy Sandbox APIs -->
+    <meta http-equiv="origin-trial" content="your-origin-trial-token-here">
+
+    <!-- Signal interest in Privacy Sandbox APIs -->
+    <script>
+        // Check if browser supports Privacy Sandbox APIs
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check for Topics API
+            if (document.browsingTopics) {
+                console.log('Topics API is supported');
+                // Get topics that the browser has observed
+                document.browsingTopics()
+                    .then(topics => {
+                        console.log('User browsing topics:', topics);
+                    })
+                    .catch(error => {
+                        console.error('Error accessing Topics API:', error);
+                    });
+            } else {
+                console.log('Topics API is not supported in this browser');
+            }
+
+            // Check for FLEDGE/Protected Audience API
+            if (navigator.runAdAuction) {
+                console.log('Protected Audience API is supported');
+            } else {
+                console.log('Protected Audience API is not supported in this browser');
+            }
+        });
+    </script>
 </head>
 
 <body>

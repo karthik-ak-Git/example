@@ -128,6 +128,50 @@ function enableAds() {
     // The actual ad loading is handled in ads.js
     const event = new Event('adsEnabled');
     document.dispatchEvent(event);
+
+    // If user has consented to advertising cookies, collect first-party data
+    try {
+        const consentData = JSON.parse(getCookie('cookie_consent'));
+        if (consentData && consentData.advertising) {
+            collectFirstPartyData();
+        }
+    } catch (e) {
+        console.error('Error parsing consent data:', e);
+    }
+}
+
+// Function to collect first-party data for better ad targeting
+function collectFirstPartyData() {
+    // This is a privacy-friendly approach using only first-party data
+    const firstPartyData = {
+        // Page context data
+        pageContext: {
+            url: window.location.href,
+            title: document.title,
+            referrer: document.referrer,
+            // Extract categories from meta tags if available
+            categories: Array.from(document.querySelectorAll('meta[property="article:tag"]'))
+                .map(tag => tag.content)
+        },
+        // User interaction data (privacy-friendly)
+        userContext: {
+            // Time on site
+            visitTime: new Date().toISOString(),
+            // Viewport size (for responsive ad selection)
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
+            // Device type
+            deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+        }
+    };
+
+    // Store this data for ad targeting (localStorage is first-party)
+    try {
+        localStorage.setItem('adTargetingData', JSON.stringify(firstPartyData));
+        console.log('First-party data collected for ad targeting');
+    } catch (e) {
+        console.error('Error storing first-party data:', e);
+    }
 }
 
 // Function to show a notification about cookie settings
