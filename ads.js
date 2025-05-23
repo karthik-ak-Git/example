@@ -17,20 +17,9 @@ function loadAdsenseScript() {
     // Just show the ads that were hidden
     showAds();
 
-    // Make sure ads are initialized
-    try {
-        if (window.adsbygoogle && window.adsbygoogle.loaded) {
-            // AdSense is already loaded, just push the ads
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        } else {
-            // Wait a bit for AdSense to load
-            setTimeout(function () {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }, 500);
-        }
-    } catch (e) {
-        console.error('AdSense initialization error:', e);
-    }
+    // We don't need to initialize ads here anymore
+    // Each ad unit has its own initialization script in the HTML
+    console.log('AdSense containers are now visible');
 }
 
 // Function to show ads when cookies are accepted
@@ -51,15 +40,7 @@ function showAds() {
                 adElement.style.height = '250px';
             }
 
-            // Force a layout recalculation
-            setTimeout(() => {
-                // Try to push the ad again after a short delay
-                try {
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.log('Additional ad push attempt:', e);
-                }
-            }, 200);
+            // No need to push ads here - they're initialized by inline scripts
         }
     });
 }
