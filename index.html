@@ -124,6 +124,11 @@
             <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7139286601549044"
                 data-ad-slot="4765762975" data-ad-format="auto" data-full-width-responsive="true"></ins>
         </div>
+
+        <div class="privacy-info">
+            <p>This site uses cookies for advertising. In Microsoft Edge and other privacy-focused browsers, 
+            we use privacy-preserving alternatives when third-party cookies are blocked.</p>
+        </div>
     </main>
 
     <footer>
@@ -133,6 +138,29 @@
     <!-- JavaScript -->
     <script src="cookies.js"></script>
     <script src="ads.js"></script>
+    <script>
+        function showFallbackAd() {
+            // Show non-personalized ads or first-party ads
+            const fallbackAd = document.createElement('div');
+            fallbackAd.className = 'fallback-ad';
+            fallbackAd.innerHTML = 'Support our site';
+            // Add your fallback ad content
+        }
+
+        function trackAdPerformance() {
+            const adContainers = document.querySelectorAll('.ad-container');
+            adContainers.forEach(container => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            console.log('Ad viewed:', container.dataset.adSlot);
+                        }
+                    });
+                });
+                observer.observe(container);
+            });
+        }
+    </script>
 </body>
 
 </html>

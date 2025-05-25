@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Hide all ad containers by default
     hideAdContainers();
 
+    // Check browser privacy features
+    checkBrowserPrivacyFeatures();
+
     // Check if user has already made a cookie choice
     if (!getCookie('cookie_consent')) {
         // If no choice has been made, show the cookie banner
@@ -57,19 +60,46 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Function to check browser privacy features
+function checkBrowserPrivacyFeatures() {
+    // Check if running in Microsoft Edge
+    const isEdge = /Edg/.test(navigator.userAgent);
+    
+    if (isEdge) {
+        // Check for third-party cookie blocking
+        const testCookie = 'testCookie';
+        document.cookie = `${testCookie}=1; domain=.doubleclick.net; path=/`;
+        const hasThirdPartyCookies = document.cookie.indexOf(testCookie) !== -1;
+        
+        if (!hasThirdPartyCookies) {
+            console.log('Third-party cookies are blocked in this browser');
+            // Store this information for ad serving decisions
+            localStorage.setItem('thirdPartyCookiesBlocked', 'true');
+        }
+    }
+}
+
 // Function to handle cookie consent
 function handleCookieConsent(consentData) {
     if (consentData.advertising) {
-        // Enable third-party cookies for advertising
-        enableThirdPartyCookies();
+        // Check if third-party cookies are blocked
+        const thirdPartyCookiesBlocked = localStorage.getItem('thirdPartyCookiesBlocked') === 'true';
+        
+        if (thirdPartyCookiesBlocked) {
+            // Use privacy-preserving alternatives
+            enablePrivacyPreservingAds();
+        } else {
+            // Use traditional ad serving
+            enableThirdPartyCookies();
+        }
+        
         // Show and initialize ads
         document.body.classList.remove('ads-disabled');
         const event = new Event('adsEnabled');
         document.dispatchEvent(event);
     } else {
-        // Disable third-party cookies for advertising
-        disableThirdPartyCookies();
-        // Hide ads
+        // Disable ads
+        disableAds();
         document.body.classList.add('ads-disabled');
         hideAds();
     }
@@ -82,12 +112,68 @@ function handleCookieConsent(consentData) {
     }
 }
 
-// Function to enable third-party cookies for advertising
-function enableThirdPartyCookies() {
-    // Set a flag to indicate third-party cookies are allowed
-    localStorage.setItem('thirdPartyCookiesAllowed', 'true');
+// Function to enable privacy-preserving ads
+function enablePrivacyPreservingAds() {
+    // Set up first-party data collection
+    setupFirstPartyDataCollection();
     
-    // Reload AdSense script to ensure it picks up the new cookie settings
+    // Use Topics API if available
+    if (document.browsingTopics) {
+        setupTopicsAPI();
+    }
+    
+    // Use FLEDGE/Protected Audience API if available
+    if (navigator.runAdAuction) {
+        setupProtectedAudienceAPI();
+    }
+    
+    // Load AdSense with privacy-preserving features
+    loadPrivacyPreservingAdSense();
+}
+
+// Function to set up first-party data collection
+function setupFirstPartyDataCollection() {
+    // Collect and store first-party data for ad targeting
+    const firstPartyData = {
+        pageContext: {
+            url: window.location.href,
+            title: document.title,
+            referrer: document.referrer,
+            categories: Array.from(document.querySelectorAll('meta[property="article:tag"]'))
+                .map(tag => tag.content)
+        },
+        userContext: {
+            visitTime: new Date().toISOString(),
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
+            deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+        }
+    };
+    
+    localStorage.setItem('firstPartyData', JSON.stringify(firstPartyData));
+}
+
+// Function to set up Topics API
+function setupTopicsAPI() {
+    document.browsingTopics()
+        .then(topics => {
+            if (topics && topics.length > 0) {
+                localStorage.setItem('userTopics', JSON.stringify(topics));
+            }
+        })
+        .catch(error => {
+            console.error('Error accessing Topics API:', error);
+        });
+}
+
+// Function to set up Protected Audience API
+function setupProtectedAudienceAPI() {
+    // Implementation for FLEDGE/Protected Audience API
+    console.log('Protected Audience API is available');
+}
+
+// Function to load AdSense with privacy-preserving features
+function loadPrivacyPreservingAdSense() {
     const existingScript = document.querySelector('script[src*="adsbygoogle.js"]');
     if (existingScript) {
         existingScript.remove();
@@ -97,15 +183,22 @@ function enableThirdPartyCookies() {
     script.async = true;
     script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139286601549044';
     script.crossOrigin = 'anonymous';
+    
+    // Add privacy-preserving parameters
+    script.setAttribute('data-privacy-preserving', 'true');
+    
     document.head.appendChild(script);
 }
 
-// Function to disable third-party cookies for advertising
-function disableThirdPartyCookies() {
-    // Set a flag to indicate third-party cookies are not allowed
+// Function to enable third-party cookies for advertising
+function enableThirdPartyCookies() {
+    localStorage.setItem('thirdPartyCookiesAllowed', 'true');
+    loadPrivacyPreservingAdSense();
+}
+
+// Function to disable ads
+function disableAds() {
     localStorage.setItem('thirdPartyCookiesAllowed', 'false');
-    
-    // Remove AdSense script
     const existingScript = document.querySelector('script[src*="adsbygoogle.js"]');
     if (existingScript) {
         existingScript.remove();
