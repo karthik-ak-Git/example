@@ -1,6 +1,10 @@
 // Google AdSense Integration
-window.onload = function () {
-    // Check if cookies are accepted before loading ads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAds();
+});
+
+// Function to initialize ads
+function initializeAds() {
     try {
         const consentData = JSON.parse(getCookie('cookie_consent'));
         if (consentData && consentData.advertising) {
@@ -12,7 +16,7 @@ window.onload = function () {
         // If cookie doesn't exist or is invalid, hide ads
         hideAds();
     }
-};
+}
 
 // Listen for the custom event when ads are enabled
 document.addEventListener('adsEnabled', function () {
@@ -23,27 +27,28 @@ document.addEventListener('adsEnabled', function () {
 function loadAdsenseScript() {
     // Show the ads that were hidden
     showAds();
-    console.log('AdSense containers are now visible');
+    
+    // Initialize all ad units
+    const adContainers = document.querySelectorAll('.ad-container');
+    adContainers.forEach(container => {
+        const adElement = container.querySelector('ins.adsbygoogle');
+        if (adElement) {
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error('Error initializing ad:', e);
+            }
+        }
+    });
+    
+    console.log('AdSense containers are now visible and initialized');
 }
 
 // Function to show ads when cookies are accepted
 function showAds() {
     const adContainers = document.querySelectorAll('.ad-container');
     adContainers.forEach(container => {
-        // Make sure container is visible
         container.style.display = 'block';
-
-        // Ensure the ad has width
-        const adElement = container.querySelector('ins.adsbygoogle');
-        if (adElement) {
-            // Set explicit dimensions if not already set
-            if (!adElement.style.width) {
-                adElement.style.width = '100%';
-            }
-            if (!adElement.style.height) {
-                adElement.style.height = '250px';
-            }
-        }
     });
 }
 
