@@ -28,13 +28,14 @@ function loadAdsenseScript() {
     // Show the ads that were hidden
     showAds();
     
-    // Initialize all ad units
+    // Initialize all ad units only if they haven't been initialized
     const adContainers = document.querySelectorAll('.ad-container');
     adContainers.forEach(container => {
         const adElement = container.querySelector('ins.adsbygoogle');
-        if (adElement) {
+        if (adElement && !adElement.hasAttribute('data-adsbygoogle-initialized')) {
             try {
                 (adsbygoogle = window.adsbygoogle || []).push({});
+                adElement.setAttribute('data-adsbygoogle-initialized', 'true');
             } catch (e) {
                 console.error('Error initializing ad:', e);
             }

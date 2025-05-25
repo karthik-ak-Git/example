@@ -11,99 +11,118 @@ document.addEventListener('DOMContentLoaded', function () {
         // Parse the cookie consent JSON
         try {
             const consentData = JSON.parse(getCookie('cookie_consent'));
-
-            // If advertising cookies were accepted, enable ads
-            if (consentData && consentData.advertising) {
-                enableAds();
-            } else {
-                // If advertising cookies were declined, disable ads
-                document.body.classList.add('ads-disabled');
-            }
+            handleCookieConsent(consentData);
         } catch (e) {
-            // Handle legacy cookie format
-            if (getCookie('cookie_consent') === 'accepted') {
-                // Migrate old format to new format
-                const newConsentData = {
-                    essential: true,
-                    analytics: true,
-                    advertising: true
-                };
-                setCookie('cookie_consent', JSON.stringify(newConsentData), 365);
-                console.log('Migrated cookie consent to new format during page load');
-
-                enableAds();
-            } else if (getCookie('cookie_consent') === 'declined') {
-                // Migrate old declined format to new format
-                const newConsentData = {
-                    essential: true,
-                    analytics: false,
-                    advertising: false
-                };
-                setCookie('cookie_consent', JSON.stringify(newConsentData), 365);
-                console.log('Migrated declined cookie consent to new format');
-
-                document.body.classList.add('ads-disabled');
-            } else {
-                // Unknown format
-                document.body.classList.add('ads-disabled');
-                console.warn('Unknown cookie consent format');
-            }
+            console.error('Error parsing cookie consent:', e);
+            // Default to most restrictive setting
+            handleCookieConsent({ essential: true, analytics: false, advertising: false });
         }
     }
 
     // Add event listeners for the cookie consent buttons
     document.getElementById('accept-cookies').addEventListener('click', function () {
-        // Accept all cookies
         const consentData = {
             essential: true,
             analytics: true,
             advertising: true
         };
-
-        setCookie('cookie_consent', JSON.stringify(consentData), 365); // Store consent for 1 year
+        handleCookieConsent(consentData);
+        setCookie('cookie_consent', JSON.stringify(consentData), 365);
         document.getElementById('cookie-consent-banner').style.display = 'none';
-        enableAds();
-
-        // Inform users about the importance of cookies for functionality
         showCookieNotification('All cookies accepted. Thank you for supporting our site!');
     });
 
-    // Handle accept selected cookies
     document.getElementById('accept-selected-cookies').addEventListener('click', function () {
         const consentData = {
-            essential: true, // Essential cookies are always required
+            essential: true,
             analytics: document.getElementById('analytics-cookies').checked,
             advertising: document.getElementById('advertising-cookies').checked
         };
-
+        handleCookieConsent(consentData);
         setCookie('cookie_consent', JSON.stringify(consentData), 365);
         document.getElementById('cookie-consent-banner').style.display = 'none';
-
-        if (consentData.advertising) {
-            enableAds();
-            showCookieNotification('Selected cookies accepted. Ads will be displayed.');
-        } else {
-            document.body.classList.add('ads-disabled');
-            showCookieNotification('Selected cookies accepted. Ads will be hidden.');
-        }
+        showCookieNotification('Selected cookies accepted.');
     });
 
     document.getElementById('decline-cookies').addEventListener('click', function () {
-        // Only accept essential cookies
         const consentData = {
             essential: true,
             analytics: false,
             advertising: false
         };
-
+        handleCookieConsent(consentData);
         setCookie('cookie_consent', JSON.stringify(consentData), 365);
         document.getElementById('cookie-consent-banner').style.display = 'none';
-        document.body.classList.add('ads-disabled');
-
-        // Inform users about the impact of declining cookies
         showCookieNotification('Only essential cookies accepted. Some features may be limited.');
     });
 });
+
+// Function to handle cookie consent
+function handleCookieConsent(consentData) {
+    if (consentData.advertising) {
+        // Enable third-party cookies for advertising
+        enableThirdPartyCookies();
+        // Show and initialize ads
+        document.body.classList.remove('ads-disabled');
+        const event = new Event('adsEnabled');
+        document.dispatchEvent(event);
+    } else {
+        // Disable third-party cookies for advertising
+        disableThirdPartyCookies();
+        // Hide ads
+        document.body.classList.add('ads-disabled');
+        hideAds();
+    }
+
+    // Handle analytics cookies
+    if (consentData.analytics) {
+        enableAnalytics();
+    } else {
+        disableAnalytics();
+    }
+}
+
+// Function to enable third-party cookies for advertising
+function enableThirdPartyCookies() {
+    // Set a flag to indicate third-party cookies are allowed
+    localStorage.setItem('thirdPartyCookiesAllowed', 'true');
+    
+    // Reload AdSense script to ensure it picks up the new cookie settings
+    const existingScript = document.querySelector('script[src*="adsbygoogle.js"]');
+    if (existingScript) {
+        existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139286601549044';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+}
+
+// Function to disable third-party cookies for advertising
+function disableThirdPartyCookies() {
+    // Set a flag to indicate third-party cookies are not allowed
+    localStorage.setItem('thirdPartyCookiesAllowed', 'false');
+    
+    // Remove AdSense script
+    const existingScript = document.querySelector('script[src*="adsbygoogle.js"]');
+    if (existingScript) {
+        existingScript.remove();
+    }
+}
+
+// Function to enable analytics
+function enableAnalytics() {
+    // Add your analytics initialization code here
+    console.log('Analytics enabled');
+}
+
+// Function to disable analytics
+function disableAnalytics() {
+    // Add your analytics disabling code here
+    console.log('Analytics disabled');
+}
 
 // Function to hide ad containers
 function hideAdContainers() {
@@ -111,6 +130,12 @@ function hideAdContainers() {
     adContainers.forEach(container => {
         container.style.display = 'none';
     });
+}
+
+// Function to hide ads
+function hideAds() {
+    // Implementation of hideAds function
+    console.log('Ads hidden');
 }
 
 // Function to set a cookie
@@ -144,109 +169,28 @@ function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999; path=/';
 }
 
-// Function to enable ads
-function enableAds() {
-    // This function will be called when cookies are accepted
-    // The actual ad loading is handled in ads.js
-    const event = new Event('adsEnabled');
-    document.dispatchEvent(event);
-
-    // If user has consented to advertising cookies, collect first-party data
-    try {
-        const cookieValue = getCookie('cookie_consent');
-
-        // Handle both old and new cookie formats
-        if (cookieValue === 'accepted') {
-            // Old format - simple string
-            collectFirstPartyData();
-
-            // Optionally migrate to new format
-            const newConsentData = {
-                essential: true,
-                analytics: true,
-                advertising: true
-            };
-            setCookie('cookie_consent', JSON.stringify(newConsentData), 365);
-            console.log('Migrated cookie consent to new format');
-        } else {
-            // New format - JSON object
-            try {
-                const consentData = JSON.parse(cookieValue);
-                if (consentData && consentData.advertising) {
-                    collectFirstPartyData();
-                }
-            } catch (jsonError) {
-                console.log('Cookie value is neither old format nor valid JSON');
-            }
-        }
-    } catch (e) {
-        console.error('Error handling consent data:', e);
-    }
-}
-
-// Function to collect first-party data for better ad targeting
-function collectFirstPartyData() {
-    // This is a privacy-friendly approach using only first-party data
-    const firstPartyData = {
-        // Page context data
-        pageContext: {
-            url: window.location.href,
-            title: document.title,
-            referrer: document.referrer,
-            // Extract categories from meta tags if available
-            categories: Array.from(document.querySelectorAll('meta[property="article:tag"]'))
-                .map(tag => tag.content)
-        },
-        // User interaction data (privacy-friendly)
-        userContext: {
-            // Time on site
-            visitTime: new Date().toISOString(),
-            // Viewport size (for responsive ad selection)
-            viewportWidth: window.innerWidth,
-            viewportHeight: window.innerHeight,
-            // Device type
-            deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
-        }
-    };
-
-    // Store this data for ad targeting (localStorage is first-party)
-    try {
-        localStorage.setItem('adTargetingData', JSON.stringify(firstPartyData));
-        console.log('First-party data collected for ad targeting');
-    } catch (e) {
-        console.error('Error storing first-party data:', e);
-    }
-}
-
 // Function to show a notification about cookie settings
 function showCookieNotification(message) {
-    // Create notification element if it doesn't exist
-    if (!document.getElementById('cookie-notification')) {
-        const notification = document.createElement('div');
-        notification.id = 'cookie-notification';
-        notification.style.position = 'fixed';
-        notification.style.bottom = '20px';
-        notification.style.right = '20px';
-        notification.style.backgroundColor = '#f8f9fa';
-        notification.style.border = '1px solid #dee2e6';
-        notification.style.borderRadius = '4px';
-        notification.style.padding = '10px 20px';
-        notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-        notification.style.zIndex = '1000';
-        notification.style.maxWidth = '300px';
-        notification.style.transition = 'opacity 0.5s ease-in-out';
-        document.body.appendChild(notification);
-    }
-
-    const notification = document.getElementById('cookie-notification');
+    const notification = document.createElement('div');
+    notification.id = 'cookie-notification';
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 10px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-width: 300px;
+        transition: opacity 0.5s ease-in-out;
+    `;
     notification.textContent = message;
-    notification.style.opacity = '1';
+    document.body.appendChild(notification);
 
-    // Hide notification after 5 seconds
     setTimeout(() => {
         notification.style.opacity = '0';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 500);
+        setTimeout(() => notification.remove(), 500);
     }, 5000);
 }
